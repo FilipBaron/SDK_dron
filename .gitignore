@@ -66,3 +66,14 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+*.pyd
+*.so
+*.dll
+*.exe
+build/
+cmake-build-*/
+__pycache__/
+*.egg-info/
+
+.idea/
