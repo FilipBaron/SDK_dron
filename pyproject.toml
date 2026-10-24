@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wut_control"
+version = "0.1.0"
+description = "Drone SDK"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = []
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["wut_control*"]
+
+[tool.setuptools.package-data]
+wut_control = ["*.pyd", "*.so", "*.dll"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["cmake-build-debug", "build", ".venv"]
