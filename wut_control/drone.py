@@ -1,5 +1,6 @@
 from . import _core
 
+
 class Drone:
     def __init__(self):
         print("Python test")
