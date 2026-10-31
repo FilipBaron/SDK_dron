@@ -18,6 +18,12 @@ if(MINGW)
     target_link_options(_core PRIVATE -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive)
 endif()
 
+if(MSVC)
+    target_compile_options(_core PRIVATE /W4)
+else()
+    target_compile_options(_core PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 set_target_properties(_core PROPERTIES
         PREFIX ""
         OUTPUT_NAME "_core"

@@ -21,3 +21,10 @@ wut_control = ["*.pyd", "*.so", "*.dll"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 norecursedirs = ["cmake-build-debug", "build", ".venv"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
