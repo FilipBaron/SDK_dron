@@ -26,7 +26,7 @@ Przykład: feat(core): add take off command
 
 ## Szybki start
 
-Wymagania: Python 3.12+, kompilator C++, Visual Studio Build Tools (Desktop development with C++).
+Wymagania: Python 3.12-3.13, kompilator C++, Visual Studio Build Tools (Desktop development with C++).
 
 ```powershell
 git clone <URL_REPOZYTORIUM>
@@ -35,7 +35,7 @@ cd SDK_dron
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 
-pip install cmake pytest
+pip install cmake pytest clang-format ruff
 python -m cmake -B build -S .
 python -m cmake --build build --config Release
 pip install -e .
