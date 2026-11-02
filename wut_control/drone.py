@@ -1,5 +1,6 @@
 from . import _core
 
+
 class Drone:
     """
     Main interface of the wut-control SDK for autonomous drone control.
@@ -15,7 +16,7 @@ class Drone:
 
     def health_check(self) -> dict:
         """
-        Verifies battery status, connection quality, and sensor readiness before takeoff (Requirement F2).
+        Verifies battery status, connection quality, and sensor readiness before takeoff.
         Returns a dictionary with basic telemetry parameters.
         """
         pass
@@ -62,6 +63,10 @@ class Drone:
 
     def get_estimated_position(self) -> tuple[float, float, float]:
         """
-        Returns the estimated position of the drone (X, Y, Z) based on the accelerometer or lighthouse system.
+        Returns the estimated position of the drone (X, Y, Z) based on the accelerometer
+        or lighthouse system.
         """
         pass
+
+    def hello(self):
+        _core.hello_drone()
