@@ -57,8 +57,6 @@ class Drone:
             "ready_to_fly": self.is_ready_to_fly(),
         }
 
-    # --- 3. Silniki i bezpieczeństwo ---
-
     def start_motors(self):
         """Spins up the motors to idle speed without taking off."""
         pass
@@ -73,8 +71,6 @@ class Drone:
         Immediately cuts all power to the motors. The drone will fall.
         """
         pass
-
-    # --- 4. Wysokość, obrót i zawis ---
 
     def set_altitude(self, target_height: float, velocity: float = 0.2):
         """Ascends or descends to the specified altitude."""
@@ -134,6 +130,21 @@ class Drone:
 
     def get_estimated_position(self) -> tuple[float, float, float]:
         """Returns the estimated position of the drone (X, Y, Z)."""
+        pass
+
+    @staticmethod
+    def scan_for_devices() -> list[str]:
+        """
+        Scans the environment for available drones.
+        Returns a list of found interfaces/URIs (e.g., 'radio://0/80/2M').
+        """
+        pass
+
+    def move_by_vector(self, dx: float, dy: float, dz: float, velocity: float = 0.2):
+        """
+        Moves the drone by a specified vector (dx, dy, dz) in meters relative to its current
+        position.
+        """
         pass
 
     def hello(self):
