@@ -1,4 +1,4 @@
-name: Lint Commits
+name: Lint Commits and Branch
 
 on:
   push:
@@ -6,13 +6,26 @@ on:
 
 jobs:
   commitlint:
-    name: Lint Commit Messages
+    name: Lint Commit & Branch Name
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Validate branch name
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          PATTERN="^(feat|fix|chore|docs|refactor|test|ci)\/[a-z0-9._-]+$"
+          if [[ ! "$BRANCH_NAME" =~ $PATTERN ]]; then
+            echo "::error::Niepoprawna nazwa brancha: '$BRANCH_NAME'"
+            echo "Wymagany format: <typ>/<nazwa-skrócona>, np. feat/drone-preparation, chore/setup"
+            exit 1
+          fi
+            echo "Nazwa brancha '$BRANCH_NAME' jest poprawna."
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
