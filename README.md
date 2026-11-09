@@ -24,9 +24,36 @@ Przykład: feat(core): add take off command
 * `ci`: Zmiany w potokach CI/CD (np. `ci: ...`)
 * `chore`: Drobne prace porządkowe, .gitignore itp.
 
+## Formatowanie
+
+### Python (Ruff)
+
+1. **Weryfikacja:**
+```powershell
+ruff check .
+ruff format --check .
+```
+
+2. **Formatowanie:**
+```powershell
+ruff check --fix . ; ruff format .
+```
+
+### C++ (clang-format)
+
+1. **Weryfikacja:**
+```powershell
+git ls-files "*.cpp", "*.hpp" | ForEach-Object { clang-format --dry-run --Werror $_ }
+```
+
+2. **Formatowanie:**
+```powershell
+git ls-files "*.cpp", "*.hpp" | ForEach-Object { clang-format -i $_ }
+```
+
 ## Szybki start
 
-Wymagania: Python 3.12-3.13, kompilator C++, Visual Studio Build Tools (Desktop development with C++).
+Wymagania: Windows 10/11,  Python 3.12-3.13, kompilator C++, Visual Studio Build Tools (Desktop development with C++).
 
 ```powershell
 git clone <URL_REPOZYTORIUM>
