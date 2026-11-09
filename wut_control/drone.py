@@ -1,4 +1,6 @@
+from .communication.DroneConnection import DroneConnection
 from . import _core
+from typing import Self
 
 
 class Drone:
@@ -13,23 +15,39 @@ class Drone:
         Connection is no longer automatic - use connect() explicitly.
         """
         self.uri = uri
-        self._is_connected = False
+        self._connection = DroneConnection(uri=self.uri)
 
-    def connect(self):
+    @staticmethod
+    def scan_for_devices() -> list[str]:
+        """
+        Scans the environment for available drones.
+        Returns a list of found interfaces/URIs (e.g., 'radio://0/80/2M').
+        """
+        return DroneConnection.scan_for_devices()
+
+    def connect(self, timeout: float = 10.0) -> None:
         """Establishes a connection with the drone."""
-        # TODO: Implement C++ core connection
-        self._is_connected = True
-        pass
+        self._connection.connect(timeout=timeout)
 
-    def disconnect(self):
+    def disconnect(self, timeout: float = 5.0) -> None:
         """Safely terminates the connection with the drone."""
-        # TODO: Implement C++ core disconnection
-        self._is_connected = False
-        pass
+        self._connection.disconnect(timeout=timeout)
 
     def is_connected(self) -> bool:
         """Returns the current connection status."""
-        return self._is_connected
+        return self._connection.is_connected
+
+    @property
+    def connection(self) -> DroneConnection:
+        """Direct access to the underlying DroneConnection (e.g. for swarm logic)."""
+        return self._connection
+
+    def __enter__(self) -> Self:
+        self.connect()
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        self.disconnect()
 
     def get_battery_level(self) -> float:
         """Returns the current battery voltage or percentage."""
@@ -130,14 +148,6 @@ class Drone:
 
     def get_estimated_position(self) -> tuple[float, float, float]:
         """Returns the estimated position of the drone (X, Y, Z)."""
-        pass
-
-    @staticmethod
-    def scan_for_devices() -> list[str]:
-        """
-        Scans the environment for available drones.
-        Returns a list of found interfaces/URIs (e.g., 'radio://0/80/2M').
-        """
         pass
 
     def move_by_vector(self, dx: float, dy: float, dz: float, velocity: float = 0.2):
