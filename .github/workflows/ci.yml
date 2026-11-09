@@ -23,6 +23,11 @@ jobs:
         run: |
           clang-format --dry-run --Werror src/bindings/*.cpp src/core/*.cpp src/core/*.hpp
 
+      - name: Run clang-tidy
+        shell: bash
+        run: |
+          clang-tidy src/core/*.cpp -- -Iinclude
+
       - name: Lint and format check (Ruff)
         run: |
           python -m pip install --upgrade pip

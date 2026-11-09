@@ -39,7 +39,7 @@ ruff format --check .
 ruff check --fix . ; ruff format .
 ```
 
-### C++ (clang-format)
+### C++ (clang-format & clang-tidy)
 
 1. **Weryfikacja:**
 ```powershell
@@ -49,6 +49,11 @@ git ls-files "*.cpp", "*.hpp" | ForEach-Object { clang-format --dry-run --Werror
 2. **Formatowanie:**
 ```powershell
 git ls-files "*.cpp", "*.hpp" | ForEach-Object { clang-format -i $_ }
+```
+
+3. **Analiza statyczna:**
+```powershell
+git ls-files "src/core/*.cpp" | ForEach-Object { clang-tidy $_ -- -Iinclude }
 ```
 
 ## Szybki start
@@ -62,7 +67,7 @@ cd SDK_dron
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 
-pip install cmake pytest clang-format ruff
+pip install cmake pytest clang-format clang-tidy ruff
 python -m cmake -B build -S .
 python -m cmake --build build --config Release
 pip install -e .

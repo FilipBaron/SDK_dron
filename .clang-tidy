@@ -1,0 +1,10 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  modernize-*
+
+WarningsAsErrors: ''
+HeaderFilterRegex: '^(src|include)/.*'
+FormatStyle: file
