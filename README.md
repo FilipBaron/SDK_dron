@@ -24,6 +24,16 @@ Przykład: feat(core): add take off command
 * `ci`: Zmiany w potokach CI/CD (np. `ci: ...`)
 * `chore`: Drobne prace porządkowe, .gitignore itp.
 
+### Nazwy gałęzi
+
+Nazwy gałęzi tworzymy analogicznie do typów commitów, stosując małe litery i myślniki:
+
+```text
+typ/krótki-opis
+
+Przykłady: chore/setup, feat/drone-preparation
+```
+
 ## Formatowanie
 
 ### Python (Ruff)
