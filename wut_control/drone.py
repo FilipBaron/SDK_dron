@@ -1,4 +1,3 @@
-from .communication.DroneConnection import DroneConnection
 from . import _core
 from typing import Self
 
@@ -9,45 +8,29 @@ class Drone:
     Provides flight control, sensor readings, and camera feed access from a single class.
     """
 
-    def __init__(self, uri: str = "radio://0/80/2M"):
-        """
-        Initializes the drone instance with the given URI.
-        Connection is no longer automatic - use connect() explicitly.
-        """
-        self.uri = uri
-        self._connection = DroneConnection(uri=self.uri)
-
     @staticmethod
     def scan_for_devices() -> list[str]:
         """
         Scans the environment for available drones.
         Returns a list of found interfaces/URIs (e.g., 'radio://0/80/2M').
         """
-        return DroneConnection.scan_for_devices()
+        pass
 
     def connect(self, timeout: float = 10.0) -> None:
         """Establishes a connection with the drone."""
-        self._connection.connect(timeout=timeout)
+        pass
 
     def disconnect(self, timeout: float = 5.0) -> None:
         """Safely terminates the connection with the drone."""
-        self._connection.disconnect(timeout=timeout)
+        pass
 
     def is_connected(self) -> bool:
         """Returns the current connection status."""
-        return self._connection.is_connected
+        pass
 
-    @property
-    def connection(self) -> DroneConnection:
+    def connection(self) -> None:
         """Direct access to the underlying DroneConnection (e.g. for swarm logic)."""
-        return self._connection
-
-    def __enter__(self) -> Self:
-        self.connect()
-        return self
-
-    def __exit__(self, *args: object) -> None:
-        self.disconnect()
+        pass
 
     def get_battery_level(self) -> float:
         """Returns the current battery voltage or percentage."""

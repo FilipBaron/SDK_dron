@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from wut_control.communication.DroneConnection import DroneConnection
 
 @patch('wut_control.communication.DroneConnection.Crazyflie')
 @patch('wut_control.communication.DroneConnection.cflib.crtp')
