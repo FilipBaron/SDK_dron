@@ -77,3 +77,7 @@ __pycache__/
 *.egg-info/
 
 .idea/
+
+log*.csv
+params*.csv
+*.csv.tmp
