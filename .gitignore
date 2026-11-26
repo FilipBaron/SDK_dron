@@ -81,3 +81,5 @@ __pycache__/
 log*.csv
 params*.csv
 *.csv.tmp
+
+cache/
