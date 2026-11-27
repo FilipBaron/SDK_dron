@@ -53,34 +53,35 @@ ruff check --fix . ; ruff format .
 
 1. **Weryfikacja:**
 ```powershell
-git ls-files "*.cpp", "*.hpp" | ForEach-Object { clang-format --dry-run --Werror $_ }
+git ls-files "include/*.hpp" "src/*.cpp" | ForEach-Object { clang-format --dry-run --Werror $_ }
 ```
 
 2. **Formatowanie:**
 ```powershell
-git ls-files "*.cpp", "*.hpp" | ForEach-Object { clang-format -i $_ }
+git ls-files "include/*.hpp" "src/*.cpp" | ForEach-Object { clang-format -i $_ }
 ```
 
 3. **Analiza statyczna:**
 ```powershell
-git ls-files "src/core/*.cpp" | ForEach-Object { clang-tidy $_ -- -Iinclude }
+git ls-files "src/*.cpp" ":!src/bindings/*" | ForEach-Object { clang-tidy $_ -- -Iinclude -std=c++17 }
 ```
 
 ## Szybki start
 
-Wymagania: Windows 10/11,  Python 3.12-3.13, kompilator C++, Visual Studio Build Tools (Desktop development with C++).
+Wymagania: Windows 10/11, Python 3.12-3.13, kompilator C++, Visual Studio Build Tools (Desktop development with C++), vcpkg (`libusb:x64-windows`).
 
 ```powershell
 git clone <URL_REPOZYTORIUM>
 cd SDK_dron
 
+vcpkg install libusb:x64-windows
+
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 
-pip install cmake pytest clang-format clang-tidy ruff
-python -m cmake -B build -S .
-python -m cmake --build build --config Release
-pip install -e .
+pip install cmake pybind11 pytest clang-format clang-tidy ruff
+$env:CMAKE_ARGS="-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+pip install -e . --no-build-isolation
 
 pytest
 ```
