@@ -25,12 +25,15 @@ jobs:
       - name: Check C++ format (clang-format)
         shell: bash
         run: |
-          clang-format --dry-run --Werror include/hal/*.hpp include/core/*.hpp include/backends/*.hpp src/core/*.cpp src/backends/*.cpp src/bindings/*.cpp
+          find include src -type f \( -name "*.hpp" -o -name "*.cpp" \) -exec clang-format --dry-run --Werror {} +
 
       - name: Run clang-tidy
         shell: bash
         run: |
-          clang-tidy src/core/*.cpp src/backends/*.cpp -- -Iinclude -Ithird_party/crazyflie_cpp/include
+          files=$(find src/core src/backends -type f -name "*.cpp" 2>/dev/null || true)
+          if [ -n "$files" ]; then
+            clang-tidy $files -- -std=c++17 -Iinclude -Ithird_party/crazyflie_cpp/include -I"$VCPKG_INSTALLATION_ROOT/installed/x64-windows/include"
+          fi
 
       - name: Lint and format check (Ruff)
         run: |
@@ -42,11 +45,11 @@ jobs:
       - name: Install Python build tools and dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel pytest
+          pip install setuptools wheel pytest pybind11
 
       - name: Configure CMake
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows
 
       - name: Build C++ core module
         run: |
@@ -54,7 +57,7 @@ jobs:
 
       - name: Install SDK in editable mode
         env:
-          CMAKE_ARGS: "-DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake"
+          CMAKE_ARGS: "-DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_INSTALLATION_ROOT }}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
         run: |
           pip install -e . --no-build-isolation
 
