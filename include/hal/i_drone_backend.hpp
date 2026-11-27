@@ -1,9 +1,9 @@
 #pragma once
 
-#include "hal/types.hpp"
-
 #include <string>
 #include <vector>
+
+#include "hal/types.hpp"
 
 namespace wut_control::hal {
 
@@ -11,8 +11,7 @@ class IDroneBackend {
 public:
     virtual ~IDroneBackend() = default;
 
-    virtual std::vector<DroneInfo> scan(uint8_t start_channel = 0,
-                                        uint8_t end_channel = 125,
+    virtual std::vector<DroneInfo> scan(uint8_t start_channel = 0, uint8_t end_channel = 125,
                                         uint64_t address = 0xE7E7E7E7E7ULL) = 0;
     virtual void connect(const std::string& uri) = 0;
     virtual void disconnect() = 0;
