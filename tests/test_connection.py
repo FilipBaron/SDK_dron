@@ -1,53 +1,61 @@
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 
-@patch('wut_control.communication.DroneConnection.Crazyflie')
-@patch('wut_control.communication.DroneConnection.cflib.crtp')
-def test_scan_for_devices(mock_crtp, mock_cf):
-    # Symulacja znalezienia jednego interfejsu radiowego
-    mock_crtp.scan_interfaces.return_value = [("radio://0/80/2M", "")]
-    
-    devices = DroneConnection.scan_for_devices()
-    
-    assert devices == ["radio://0/80/2M"]
-    mock_crtp.init_drivers.assert_called_once()
+from wut_control import Drone, _core
 
-@patch('wut_control.communication.DroneConnection.Crazyflie')
-@patch('wut_control.communication.DroneConnection.cflib.crtp')
-def test_connect_and_disconnect(mock_crtp, mock_cf_class):
-    mock_cf_instance = mock_cf_class.return_value
-    mock_cf_instance.is_link_open.return_value = False
 
-    connection = DroneConnection(uri="radio://0/80/2M")
-    
-    # Symulacja udanego wywołania callbacku po uruchomieniu open_link
-    def mock_open_link(uri):
-        connection._on_connected(uri)
-        mock_cf_instance.is_link_open.return_value = True
+def test_scan_for_devices(monkeypatch):
+    fake_device = _core.DroneInfo()
+    fake_device.uri = "radio://0/80/2M/E7E7E7E7E7"
+    fake_device.channel = 80
+    fake_device.address = 0xE7E7E7E7E7
 
-    mock_cf_instance.open_link.side_effect = mock_open_link
-    
-    connection.connect(timeout=1.0)
-    assert connection.is_connected is True
-    mock_cf_instance.open_link.assert_called_once_with("radio://0/80/2M")
+    mock_scanner = MagicMock(spec=_core.IDroneBackend)
+    mock_scanner.scan.return_value = [fake_device]
+    monkeypatch.setattr(_core, "CrazyflieBackend", lambda: mock_scanner)
 
-    # Symulacja rozłączenia i wywołania callbacku
-    def mock_close_link():
-        connection._on_disconnected(connection.uri)
-        mock_cf_instance.is_link_open.return_value = False
-        
-    mock_cf_instance.close_link.side_effect = mock_close_link
-    
-    connection.disconnect(timeout=1.0)
-    assert connection.is_connected is False
-    mock_cf_instance.close_link.assert_called_once()
+    devices = Drone.scan_for_devices(start_channel=0, end_channel=125, address=0xE7E7E7E7E7)
 
-@patch('wut_control.communication.DroneConnection.Crazyflie')
-@patch('wut_control.communication.DroneConnection.cflib.crtp')
-def test_connect_timeout(mock_crtp, mock_cf_class):
-    mock_cf_instance = mock_cf_class.return_value
-    connection = DroneConnection(uri="radio://0/80/2M")
-    
-    # Zablokowanie wywołania callbacku, co powinno skutkować błędem TimeoutError
+    assert devices == ["radio://0/80/2M/E7E7E7E7E7"]
+    mock_scanner.scan.assert_called_once_with(0, 125, 0xE7E7E7E7E7)
+
+
+def test_connect_and_disconnect():
+    mock_backend = MagicMock(spec=_core.IDroneBackend)
+    mock_backend.is_connected.side_effect = [False, True, False]
+
+    drone = Drone(uri="radio://0/80/2M/E7E7E7E7E7", backend=mock_backend)
+    assert drone.is_connected() is False
+
+    drone.connect(timeout=1.0)
+    assert drone.is_connected() is True
+    mock_backend.connect.assert_called_once_with("radio://0/80/2M/E7E7E7E7E7")
+
+    drone.disconnect()
+    assert drone.is_connected() is False
+    mock_backend.disconnect.assert_called_once()
+
+
+def test_connect_auto_scan_when_no_uri():
+    fake_device = _core.DroneInfo()
+    fake_device.uri = "radio://0/80/2M/E7E7E7E7E7"
+
+    mock_backend = MagicMock(spec=_core.IDroneBackend)
+    mock_backend.scan.return_value = [fake_device]
+
+    drone = Drone(backend=mock_backend)
+    drone.connect(timeout=1.0)
+
+    mock_backend.scan.assert_called_once()
+    mock_backend.connect.assert_called_once_with("radio://0/80/2M/E7E7E7E7E7")
+
+
+def test_connect_timeout():
+    mock_backend = MagicMock(spec=_core.IDroneBackend)
+    mock_backend.connect.side_effect = RuntimeError("Radio link timeout")
+
+    drone = Drone(uri="radio://0/80/2M/E7E7E7E7E7", backend=mock_backend)
+
     with pytest.raises(TimeoutError):
-        connection.connect(timeout=0.1)
+        drone.connect(timeout=0.25)
