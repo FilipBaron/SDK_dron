@@ -1,5 +1,6 @@
+from __future__ import annotations
 from . import _core
-from typing import Self
+import time
 
 
 class Drone:
@@ -8,29 +9,66 @@ class Drone:
     Provides flight control, sensor readings, and camera feed access from a single class.
     """
 
+    def __init__(
+            self,
+            uri: str | None = None,
+            backend: _core.IDroneBackend | None = None,
+    ) -> None:
+        self._uri = uri
+        self._backend: _core.IDroneBackend = (
+            backend if backend is not None else _core.CrazyflieBackend()
+        )
+
     @staticmethod
-    def scan_for_devices() -> list[str]:
+    def scan_for_devices(
+            start_channel: int = 0,
+            end_channel: int = 125,
+            address: int = 0xE7E7E7E7E7,
+    ) -> list[str]:
         """
         Scans the environment for available drones.
-        Returns a list of found interfaces/URIs (e.g., 'radio://0/80/2M').
+        Returns a list of found interfaces/URIs (e.g., 'radio://0/80/2M/E7E7E7E7E7').
         """
-        pass
+        scanner = _core.CrazyflieBackend()
+        found = scanner.scan(start_channel, end_channel, address)
+        return [device.uri for device in found]
 
-    def connect(self, timeout: float = 10.0) -> None:
-        """Establishes a connection with the drone."""
-        pass
+    def connect(self, uri: str | None = None, timeout: float = 10.0) -> None:
+        """Establishes a connection with the drone within the given timeout."""
+        deadline = time.monotonic() + timeout
+        last_error: Exception | None = None
 
-    def disconnect(self, timeout: float = 5.0) -> None:
+        while True:
+            try:
+                target_uri = uri or self._uri
+                if target_uri is None:
+                    devices = self._backend.scan()
+                    if not devices:
+                        raise RuntimeError("No Crazyflie drones found during scan.")
+                    target_uri = devices[0].uri
+
+                self._backend.connect(target_uri)
+                self._uri = target_uri
+                return
+            except Exception as exc:
+                last_error = exc
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(
+                        f"Failed to connect within {timeout}s: {last_error}"
+                    ) from last_error
+                time.sleep(0.2)
+
+    def disconnect(self) -> None:
         """Safely terminates the connection with the drone."""
-        pass
+        self._backend.disconnect()
 
     def is_connected(self) -> bool:
         """Returns the current connection status."""
-        pass
+        return self._backend.is_connected()
 
-    def connection(self) -> None:
-        """Direct access to the underlying DroneConnection (e.g. for swarm logic)."""
-        pass
+    def connection(self) -> _core.IDroneBackend:
+        """Direct access to the underlying backend (e.g. for swarm logic)."""
+        return self._backend
 
     def get_battery_level(self) -> float:
         """Returns the current battery voltage or percentage."""
@@ -71,7 +109,7 @@ class Drone:
         EMERGENCY KILL SWITCH.
         Immediately cuts all power to the motors. The drone will fall.
         """
-        pass
+        self._backend.emergency_stop()
 
     def set_altitude(self, target_height: float, velocity: float = 0.2):
         """Ascends or descends to the specified altitude."""
