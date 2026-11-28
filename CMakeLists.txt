@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(wut_control LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -53,15 +53,15 @@ target_link_libraries(crazyflie_cpp PUBLIC
 )
 
 if(MSVC)
-    target_compile_options(crazyflie_cpp PRIVATE
-            /FI"${CMAKE_CURRENT_SOURCE_DIR}/third_party/crazyflie_cpp/msvc_compat.h"
+    target_compile_options(crazyflie_cpp PUBLIC
+            "/FI${CMAKE_CURRENT_SOURCE_DIR}/third_party/crazyflie_cpp/msvc_compat.h"
             /wd4103
     )
 endif()
 
 file(GLOB_RECURSE WUT_SDK_SOURCES CONFIGURE_DEPENDS
         "src/core/*.cpp"
-        "src/backends/*.cpp"
+        "src/hal/*.cpp"
 )
 add_library(wut_sdk_core STATIC ${WUT_SDK_SOURCES})
 target_include_directories(wut_sdk_core PUBLIC
@@ -90,13 +90,4 @@ else()
     target_compile_options(_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-set_target_properties(_core PROPERTIES
-        PREFIX ""
-        OUTPUT_NAME "_core"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/wut_control"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/wut_control"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/wut_control"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/wut_control"
-        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/wut_control"
-        LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/wut_control"
-)
+install(TARGETS _core DESTINATION wut_control)

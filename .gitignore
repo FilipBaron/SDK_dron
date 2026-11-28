@@ -83,3 +83,4 @@ params*.csv
 *.csv.tmp
 
 cache/
+.cmake/
