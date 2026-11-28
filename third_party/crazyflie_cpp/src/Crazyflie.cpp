@@ -131,6 +131,25 @@ Crazyflie::Crazyflie(
 
 }
 
+void Crazyflie::withSharedRadio(
+  int devId,
+  const std::function<void(Crazyradio&)>& fn)
+{
+  if (devId < 0 || devId >= MAX_RADIOS) {
+    throw std::runtime_error("Invalid radio devId");
+  }
+
+  std::unique_lock<std::mutex> mlock(g_radioMutex[devId]);
+  if (!g_crazyradios[devId]) {
+    g_crazyradios[devId] = new Crazyradio(devId);
+    g_crazyradios[devId]->enableLogging(LOG_COMMUNICATION);
+    g_crazyradios[devId]->setAckEnable(true);
+    g_crazyradios[devId]->setArc(0);
+  }
+
+  fn(*g_crazyradios[devId]);
+}
+
 int Crazyflie::getProtocolVersion()
 {
   crtpGetProtocolVersionRequest req;

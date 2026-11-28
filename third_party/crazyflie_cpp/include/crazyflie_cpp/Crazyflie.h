@@ -116,6 +116,10 @@ public:
     Logger& logger = EmptyLogger,
     std::function<void(const char*)> consoleCb = nullptr);
 
+  static void withSharedRadio(
+    int devId,
+    const std::function<void(Crazyradio&)>& fn);
+
   int getProtocolVersion();
 
   std::string getFirmwareVersion();
