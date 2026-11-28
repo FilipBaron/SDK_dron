@@ -79,8 +79,7 @@ vcpkg install libusb:x64-windows
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 
-pip install cmake pybind11 pytest clang-format clang-tidy ruff
-$env:CMAKE_ARGS="-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
+pip install scikit-build-core cmake pybind11 pytest clang-format clang-tidy ruff
 pip install -e . --no-build-isolation
 
 pytest
